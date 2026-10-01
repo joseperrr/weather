@@ -1,6 +1,6 @@
 import type { Ciudad, Estado } from "./types.ts";
 import { buscarCiudades } from "./geocoding.ts";
-import { obtenerTemperatura } from "./weather.ts";
+import { obtenerPronostico, obtenerTemperatura } from "./weather.ts";
 import { cargarEstado, guardarEstado } from "./storage.ts";
 import {
   EntradaCerrada,
@@ -10,6 +10,7 @@ import {
   etiquetaCiudad,
   exito,
   mostrarError,
+  mostrarPronostico,
   mostrarTemperatura,
   pausar,
   preguntar,
@@ -45,6 +46,28 @@ async function climaTodas(estado: Estado): Promise<void> {
   }
   for (const ciudad of estado.ciudades) {
     await consultarYMostrar(ciudad, estado);
+  }
+}
+
+async function pronosticoCiudad(estado: Estado): Promise<void> {
+  if (estado.ciudades.length === 0) {
+    console.log("  No hay ciudades guardadas. Usa la opción 3 para agregar alguna.");
+    return;
+  }
+  console.log("  Ciudades guardadas:");
+  const indice = await elegirCiudad(estado.ciudades, "ver pronóstico");
+  if (indice === null) {
+    return;
+  }
+  const ciudad = estado.ciudades[indice];
+  if (!ciudad) {
+    return;
+  }
+  try {
+    const dias = await obtenerPronostico(ciudad.lat, ciudad.lon, estado.unidad);
+    mostrarPronostico(ciudad, dias);
+  } catch (error) {
+    mostrarError(`No se pudo consultar el pronóstico de ${ciudad.nombre}: ${mensajeError(error)}`);
   }
 }
 
@@ -154,6 +177,9 @@ async function main(): Promise<void> {
         break;
       case "5":
         estado = await establecerDefault(estado);
+        break;
+      case "6":
+        await pronosticoCiudad(estado);
         break;
       case "8": {
         estado = alternarUnidad(estado);

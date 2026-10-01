@@ -1,8 +1,15 @@
 import { stdin, stdout } from "node:process";
 import type { Ciudad, Estado } from "./types.ts";
-import type { TemperaturaActual } from "./weather.ts";
+import type { PronosticoDia, TemperaturaActual } from "./weather.ts";
 
 const SEPARADOR = "═".repeat(40);
+
+const FORMATO_FECHA = new Intl.DateTimeFormat("es-ES", {
+  weekday: "short",
+  day: "2-digit",
+  month: "short",
+  timeZone: "UTC",
+});
 
 const COLORES_ACTIVOS = stdout.isTTY === true && process.env["NO_COLOR"] === undefined;
 
@@ -92,6 +99,7 @@ export function dibujarMenu(estado: Estado): void {
   console.log("  3. Buscar y agregar ciudad");
   console.log("  4. Eliminar ciudad");
   console.log("  5. Establecer ciudad default");
+  console.log("  6. Pronóstico de 7 días");
   console.log(`  8. Ajustes (${simbolo})`);
   console.log("  9. Salir");
   console.log(cian(SEPARADOR));
@@ -111,6 +119,19 @@ export function imprimirLista(ciudades: readonly Ciudad[]): void {
 export function mostrarTemperatura(ciudad: Ciudad, temperatura: TemperaturaActual): void {
   const lectura = `${temperatura.valor} ${temperatura.simbolo}`;
   console.log(`  ${etiquetaCiudad(ciudad)}: ${amarillo(lectura)}`);
+}
+
+export function mostrarPronostico(ciudad: Ciudad, dias: readonly PronosticoDia[]): void {
+  console.log(`  Pronóstico de 7 días para ${etiquetaCiudad(ciudad)}:`);
+  if (dias.length === 0) {
+    console.log("  Sin datos de pronóstico.");
+    return;
+  }
+  for (const dia of dias) {
+    const fecha = FORMATO_FECHA.format(new Date(`${dia.fecha}T00:00:00Z`));
+    const lectura = `${dia.min} – ${dia.max} ${dia.simbolo}`;
+    console.log(`  ${fecha}  ${dia.descripcion.padEnd(28)} ${amarillo(lectura)}`);
+  }
 }
 
 export async function elegirCiudad(
