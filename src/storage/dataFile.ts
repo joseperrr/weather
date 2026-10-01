@@ -1,6 +1,5 @@
-import type { Estado } from "./types.ts";
-
-const ARCHIVO_DATOS = "data.json";
+import type { Estado } from "../types/State.ts";
+import { ARCHIVO_DATOS } from "../utils/constants.ts";
 
 const ESTADO_INICIAL: Estado = {
   ciudades: [],
@@ -8,7 +7,7 @@ const ESTADO_INICIAL: Estado = {
   unidad: "celsius",
 };
 
-export async function cargarEstado(): Promise<Estado> {
+export async function leerEstado(): Promise<Estado> {
   try {
     const archivo = Bun.file(ARCHIVO_DATOS);
     if (!(await archivo.exists())) {
@@ -28,6 +27,6 @@ export async function cargarEstado(): Promise<Estado> {
   }
 }
 
-export async function guardarEstado(estado: Estado): Promise<void> {
+export async function escribirEstado(estado: Estado): Promise<void> {
   await Bun.write(ARCHIVO_DATOS, `${JSON.stringify(estado, null, 2)}\n`);
 }

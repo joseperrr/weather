@@ -1,17 +1,7 @@
-import type { Ciudad } from "./types.ts";
+import type { Ciudad } from "../types/City.ts";
+import type { RespuestaGeocoding } from "../types/Geocoding.ts";
 
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
-
-interface RespuestaGeocoding {
-  results?: {
-    id: number;
-    name: string;
-    latitude: number;
-    longitude: number;
-    country?: string;
-    admin1?: string;
-  }[];
-}
 
 export async function buscarCiudades(nombre: string, cantidad = 5): Promise<Ciudad[]> {
   const url = `${GEOCODING_URL}?name=${encodeURIComponent(nombre)}&count=${cantidad}&language=es&format=json`;

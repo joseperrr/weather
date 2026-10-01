@@ -1,37 +1,6 @@
-import type { Unidad } from "./types.ts";
+import type { PronosticoDia, RespuestaForecast, TemperaturaActual, Unidad } from "../types/Weather.ts";
 
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
-
-export interface TemperaturaActual {
-  valor: number;
-  simbolo: string;
-}
-
-export interface PronosticoDia {
-  fecha: string;
-  descripcion: string;
-  max: number;
-  min: number;
-  simbolo: string;
-}
-
-interface RespuestaForecast {
-  current?: {
-    temperature_2m?: number;
-  };
-  current_units?: {
-    temperature_2m?: string;
-  };
-  daily?: {
-    time?: string[];
-    weather_code?: number[];
-    temperature_2m_max?: (number | null)[];
-    temperature_2m_min?: (number | null)[];
-  };
-  daily_units?: {
-    temperature_2m_max?: string;
-  };
-}
 
 const DESCRIPCIONES_CODIGO: Record<number, string> = {
   0: "Despejado",
