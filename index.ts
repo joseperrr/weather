@@ -8,10 +8,12 @@ import {
   dibujarMenu,
   elegirCiudad,
   etiquetaCiudad,
+  exito,
   mostrarError,
   mostrarTemperatura,
   pausar,
   preguntar,
+  rojo,
 } from "./ui.ts";
 
 function mensajeError(error: unknown): string {
@@ -78,7 +80,7 @@ async function buscarYAgregar(estado: Estado): Promise<Estado> {
   }
   const nuevo: Estado = { ...estado, ciudades: [...estado.ciudades, ciudad] };
   await guardarEstado(nuevo);
-  console.log(`  Ciudad agregada: ${etiquetaCiudad(ciudad)}`);
+  exito(`Ciudad agregada: ${etiquetaCiudad(ciudad)}`);
   return nuevo;
 }
 
@@ -102,7 +104,7 @@ async function eliminarCiudad(estado: Estado): Promise<Estado> {
     ciudadDefaultId: estado.ciudadDefaultId === ciudad.id ? null : estado.ciudadDefaultId,
   };
   await guardarEstado(nuevo);
-  console.log(`  Ciudad eliminada: ${etiquetaCiudad(ciudad)}`);
+  exito(`Ciudad eliminada: ${etiquetaCiudad(ciudad)}`);
   return nuevo;
 }
 
@@ -122,7 +124,7 @@ async function establecerDefault(estado: Estado): Promise<Estado> {
   }
   const nuevo: Estado = { ...estado, ciudadDefaultId: ciudad.id };
   await guardarEstado(nuevo);
-  console.log(`  Ciudad default: ${etiquetaCiudad(ciudad)}`);
+  exito(`Ciudad default: ${etiquetaCiudad(ciudad)}`);
   return nuevo;
 }
 
@@ -156,7 +158,7 @@ async function main(): Promise<void> {
       case "8": {
         estado = alternarUnidad(estado);
         await guardarEstado(estado);
-        console.log(`  Unidad actualizada a ${estado.unidad === "celsius" ? "°C" : "°F"}.`);
+        exito(`Unidad actualizada a ${estado.unidad === "celsius" ? "°C" : "°F"}.`);
         break;
       }
       case "9":
@@ -164,7 +166,7 @@ async function main(): Promise<void> {
         salir = true;
         break;
       default:
-        console.log("  Opción no válida.");
+        console.log(`  ${rojo("Opción no válida.")}`);
     }
     if (!salir) {
       await pausar();
@@ -178,7 +180,7 @@ main().catch((error) => {
   if (error instanceof EntradaCerrada) {
     console.log("\n  ¡Hasta luego!");
   } else {
-    console.error(`  Error inesperado: ${mensajeError(error)}`);
+    console.error(`  ${rojo(`Error inesperado: ${mensajeError(error)}`)}`);
   }
   cerrar();
 });

@@ -4,6 +4,17 @@ import type { TemperaturaActual } from "./weather.ts";
 
 const SEPARADOR = "═".repeat(40);
 
+const COLORES_ACTIVOS = stdout.isTTY === true && process.env["NO_COLOR"] === undefined;
+
+function pintar(codigo: string, texto: string): string {
+  return COLORES_ACTIVOS ? `\x1b[${codigo}m${texto}\x1b[0m` : texto;
+}
+
+export const cian = (texto: string): string => pintar("36", texto);
+export const amarillo = (texto: string): string => pintar("33", texto);
+export const verde = (texto: string): string => pintar("32", texto);
+export const rojo = (texto: string): string => pintar("31", texto);
+
 const cola: string[] = [];
 const esperando: ((linea: string | null) => void)[] = [];
 let pendiente = "";
@@ -73,9 +84,9 @@ export function cerrar(): void {
 
 export function dibujarMenu(estado: Estado): void {
   const simbolo = estado.unidad === "celsius" ? "°C" : "°F";
-  console.log(SEPARADOR);
-  console.log("         WEATHER CLI");
-  console.log(SEPARADOR);
+  console.log(cian(SEPARADOR));
+  console.log(cian("         WEATHER CLI"));
+  console.log(cian(SEPARADOR));
   console.log("  1. Clima de ciudad default");
   console.log(`  2. Clima de todas las ciudades (${estado.ciudades.length})`);
   console.log("  3. Buscar y agregar ciudad");
@@ -83,7 +94,7 @@ export function dibujarMenu(estado: Estado): void {
   console.log("  5. Establecer ciudad default");
   console.log(`  8. Ajustes (${simbolo})`);
   console.log("  9. Salir");
-  console.log(SEPARADOR);
+  console.log(cian(SEPARADOR));
 }
 
 export function etiquetaCiudad(ciudad: Ciudad): string {
@@ -98,7 +109,8 @@ export function imprimirLista(ciudades: readonly Ciudad[]): void {
 }
 
 export function mostrarTemperatura(ciudad: Ciudad, temperatura: TemperaturaActual): void {
-  console.log(`  ${etiquetaCiudad(ciudad)}: ${temperatura.valor} ${temperatura.simbolo}`);
+  const lectura = `${temperatura.valor} ${temperatura.simbolo}`;
+  console.log(`  ${etiquetaCiudad(ciudad)}: ${amarillo(lectura)}`);
 }
 
 export async function elegirCiudad(
@@ -109,7 +121,7 @@ export async function elegirCiudad(
   const respuesta = await preguntar(`  Número de la ciudad a ${accion} (0 para cancelar): `);
   const numero = Number(respuesta);
   if (!Number.isInteger(numero) || numero < 0 || numero > ciudades.length) {
-    console.log("  Entrada no válida.");
+    console.log(`  ${rojo("Entrada no válida.")}`);
     return null;
   }
   if (numero === 0) {
@@ -119,5 +131,9 @@ export async function elegirCiudad(
 }
 
 export function mostrarError(texto: string): void {
-  console.log(`  ⚠ ${texto}`);
+  console.log(`  ${rojo(`⚠ ${texto}`)}`);
+}
+
+export function exito(texto: string): void {
+  console.log(`  ${verde(texto)}`);
 }
